@@ -31,7 +31,7 @@ public class RestTemplateConfiguration {
                 CachingHttpClients.custom()
                         .setCacheConfig(
                                 CacheConfig.custom()
-                                        .setMaxObjectSize(1_000_000)
+                                        .setMaxObjectSize(1024*1024)
                                         .build()
                         )
                         .setHttpCacheStorage(
