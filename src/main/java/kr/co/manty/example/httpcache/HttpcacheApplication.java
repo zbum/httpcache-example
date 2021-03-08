@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.WebRequest;
 
+import java.util.Calendar;
 import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,20 +24,21 @@ public class HttpcacheApplication {
         SpringApplication.run(HttpcacheApplication.class, args);
     }
 
-    private AtomicInteger count = new AtomicInteger();
-    private String etag = "0";
+    private final AtomicInteger count = new AtomicInteger();
+    private Calendar etagSource = Calendar.getInstance();
 
     @GetMapping("/server")
     public String server(WebRequest webRequest) {
-        if ( count.incrementAndGet() % 5 == 0 ) {
-            etag = String.valueOf(count.get());
+        int result = count.incrementAndGet() / 5;
+        if (count.get() % 5 == 0 ) {
+            etagSource = Calendar.getInstance();
         }
 
-        if (webRequest.checkNotModified(etag)) {
+        if (webRequest.checkNotModified(String.valueOf(etagSource.getTimeInMillis()))) {
             return null;
         }
 
-        return String.valueOf(count.get());
+        return String.valueOf(result);
     }
 
     @Autowired
